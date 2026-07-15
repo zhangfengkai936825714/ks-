@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>青春纪念册 · 班级同学录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+        body {
+            background: #f0f7ff;
+            color: #222;
+            line-height: 1.6;
+        }
+        /* 头部横幅 */
+        header {
+            background: linear-gradient(135deg, #4080ff, #73a6ff);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            box-shadow: 0 4px 12px #cccccc;
+        }
+        header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        @media (max-width:768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 25px;
+            box-shadow: 0 2px 15px #dde6f5;
+        }
+        .card h2 {
+            border-left: 5px solid #4080ff;
+            padding-left: 12px;
+            margin-bottom: 20px;
+            color: #2b5cb8;
+        }
+        /* 班级信息 */
+        .class-info p {
+            font-size: 16px;
+            margin: 10px 0;
+            padding: 8px;
+            background: #f5f9ff;
+            border-radius: 6px;
+        }
+        /* 同学列表 */
+        .student-list .stu-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .stu-item:last-child {
+            border-bottom: none;
+        }
+        /* 留言板块 */
+        .msg-box textarea {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border: 1px solid #cce0ff;
+            border-radius: 8px;
+            resize: none;
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+        .msg-box input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cce0ff;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4080ff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #2b68e0;
+        }
+        .message-item {
+            background: #f5f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+        .message-item .name {
+            font-weight: bold;
+            color: #2b5cb8;
+            margin-bottom: 6px;
+        }
+        /* 底部 */
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>✨ 我们的青春同学录 ✨</h1>
+        <p>愿此去繁花似锦，再相逢依旧如故</p>
+    </header>
+
+    <div class="container">
+        <!-- 左侧：班级信息 + 同学名单 -->
+        <div>
+            <div class="card class-info">
+                <h2>班级档案</h2>
+                <p>🏫 学校：XX中学</p>
+                <p>📚 班级：高三（3）班</p>
+                <p>👩‍🏫 班主任：王老师</p>
+                <p>📅 毕业年份：2026年</p>
+            </div>
+
+            <div class="card student-list" style="margin-top:30px">
+                <h2>全班同学名单</h2>
+                <div class="stu-item"><span>张三</span><span>座位：1排2号</span></div>
+                <div class="stu-item"><span>李四</span><span>座位：2排1号</span></div>
+                <div class="stu-item"><span>小美</span><span>座位：1排5号</span></div>
+                <div class="stu-item"><span>小宇</span><span>座位：3排3号</span></div>
+                <div class="stu-item"><span>佳佳</span><span>座位：2排4号</span></div>
+            </div>
+        </div>
+
+        <!-- 右侧：留言板 -->
+        <div class="card msg-box">
+            <h2>写下毕业留言</h2>
+            <input type="text" id="username" placeholder="输入你的名字">
+            <textarea id="userMsg" placeholder="想对同学们说些什么..."></textarea>
+            <button onclick="addMessage()">提交留言</button>
+            <div id="msgContainer"></div>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 高三3班 自制同学录网页 | 永远怀念这段时光
+    </footer>
+
+    <script>
+        // 本地留言存储（刷新页面不会消失）
+        function getMsgList() {
+            let data = localStorage.getItem("classMsg");
+            return data ? JSON.parse(data) : [];
+        }
+        function saveMsg(list) {
+            localStorage.setItem("classMsg", JSON.stringify(list));
+        }
+
+        // 渲染留言
+        function renderMsg() {
+            let list = getMsgList();
+            let wrap = document.getElementById("msgContainer");
+            wrap.innerHTML = "";
+            list.forEach(item => {
+                let dom = `
+                    <div class="message-item">
+                        <div class="name">${item.name}</div>
+                        <div class="text">${item.content}</div>
+                    </div>
+                `;
+                wrap.innerHTML += dom;
+            })
+        }
+
+        // 添加留言
+        function addMessage() {
+            let name = document.getElementById("username").value.trim();
+            let text = document.getElementById("userMsg").value.trim();
+            if (!name || !text) {
+                alert("请填写名字和留言内容！");
+                return;
+            }
+            let list = getMsgList();
+            list.unshift({ name, content: text });
+            saveMsg(list);
+            renderMsg();
+            // 清空输入框
+            document.getElementById("username").value = "";
+            document.getElementById("userMsg").value = "";
+        }
+
+        // 页面加载自动读取留言
+        window.onload = renderMsg;
+    </script>
+</body>
+</html>
